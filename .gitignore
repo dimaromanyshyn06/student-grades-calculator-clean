@@ -1,0 +1,24 @@
+# Ignore generated dataset files
+students_*.txt
+
+# Ignore result files
+failed_*.txt
+passed_*.txt
+
+# Ignore executables
+*.exe
+
+# Ignore Visual Studio / VS Code folders
+.vs/
+.vscode/
+
+# Ignore compiler artifacts
+*.o
+*.obj
+*.out
+*.ipch
+
+# Ignore temporary files
+*.tmp
+*.log
+*.cache
