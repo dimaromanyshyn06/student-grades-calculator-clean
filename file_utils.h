@@ -3,15 +3,21 @@
 
 #include <vector>
 #include <string>
+#include <list>
+#include <deque>
 #include "person.h"
 
-// Read students from file
+// Reading
 std::vector<Person> readStudentsFromFile(const std::string& filename);
+std::list<Person> readStudentsList(const std::string& filename);
+std::deque<Person> readStudentsDeque(const std::string& filename);
 
-// Write students to file
+// Writing
 void writeStudentsToFile(const std::string& filename, const std::vector<Person>& students);
+void writeStudentsToFile(const std::string& filename, const std::list<Person>& students);
+void writeStudentsToFile(const std::string& filename, const std::deque<Person>& students);
 
-// Generator
+// Generator (for test files)
 void generateFile(const std::string& filename, int count);
 
 #endif
