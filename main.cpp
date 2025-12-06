@@ -1,86 +1,60 @@
 #include <iostream>
 #include <vector>
-#include <string>
-#include <iomanip>
-#include <algorithm>
 #include "person.h"
 #include "file_utils.h"
 #include "timer.h"
-
-using namespace std;
+#include "split_strategies.h"
 
 int main() {
-    Timer programTimer;  // Start measuring execution time
+    std::string filename = "students_100000.txt"; // тут став будь-який файл
 
-    cout << "==== STUDENT PROCESSOR V0.2 ====\n";
-    cout << "1 - Read students from file\n";
-    cout << "2 - Generate student files (10k, 100k, 1M, 10M)\n";
-    cout << "Choose option: ";
+    // ---------------------------
+    // READ STUDENTS (VECTOR)
+    // ---------------------------
+    Timer t;
+    t.start();
+    std::vector<Person> students = readStudentsFromFile(filename);
+    t.stop();
 
-    int choice;
-    cin >> choice;
+    std::cout << "Reading time (vector): "
+              << t.elapsed() << " s\n";
 
-    if (choice == 2) {
-        cout << "Generating files... This may take some time.\n";
+    // ---------------------------
+    // STRATEGY 1 — Two containers
+    // ---------------------------
+    {
+        std::vector<Person> failed, passed;
 
-        generateFile("students_10000.txt", 10000);
-        generateFile("students_100000.txt", 100000);
-        generateFile("students_1000000.txt", 1000000);
-        generateFile("students_10000000.txt", 10000000);
+        Timer t1;
+        t1.start();
+        split_strategy1(students, failed, passed);
+        t1.stop();
 
-        cout << "Files generated successfully.\n";
-        return 0;
+        std::cout << "Strategy 1 (two containers) time: "
+                  << t1.elapsed() << " s\n";
+
+        std::cout << "  Failed: " << failed.size()
+                  << " | Passed: " << passed.size() << "\n\n";
     }
 
-    string filename;
-    cout << "Enter file name: ";
-    cin >> filename;
+    // ---------------------------
+    // STRATEGY 2 — One container
+    // ---------------------------
+    {
+        std::vector<Person> base = students; // копія, щоб не псувати students
+        std::vector<Person> failed;
 
-    Timer loadTimer;
-    vector<Person> students = readStudentsFromFile(filename);
-    double loadTime = loadTimer.elapsed();
+        Timer t2;
+        t2.start();
+        split_strategy2(base, failed);
+        t2.stop();
 
-    cout << "Loaded " << students.size() << " students in "
-         << loadTime << " sec.\n";
+        std::cout << "Strategy 2 (one container) time: "
+                  << t2.elapsed() << " s\n";
 
-    // SORTING
-    Timer sortTimer;
-    sort(students.begin(), students.end(),
-         [](const Person& a, const Person& b) {
-             return a.getSurname() < b.getSurname();
-         });
-    double sortTime = sortTimer.elapsed();
-
-    cout << "Sorting completed in " << sortTime << " sec.\n";
-
-    // SPLIT INTO FAILED AND PASSED
-    Timer splitTimer;
-    vector<Person> failed, passed;
-
-    for (const auto& s : students) {
-        if (s.getFinalAverage() < 5.0)
-            failed.push_back(s);
-        else
-            passed.push_back(s);
+        std::cout << "  Failed: " << failed.size()
+                  << " | Passed: " << base.size() << "\n\n";
     }
-
-    double splitTime = splitTimer.elapsed();
-    cout << "Splitting completed in " << splitTime << " sec.\n";
-
-    // WRITE TO OUTPUT FILES
-    Timer writeTimer;
-    writeStudentsToFile("failed.txt", failed);
-    writeStudentsToFile("passed.txt", passed);
-    double writeTime = writeTimer.elapsed();
-
-    cout << "Writing completed in " << writeTime << " sec.\n";
-
-    cout << "\n==== SUMMARY ====\n";
-    cout << "Loading:  " << loadTime << " sec\n";
-    cout << "Sorting:  " << sortTime << " sec\n";
-    cout << "Splitting:" << splitTime << " sec\n";
-    cout << "Writing:  " << writeTime << " sec\n";
-    cout << "TOTAL:    " << programTimer.elapsed() << " sec\n";
 
     return 0;
 }

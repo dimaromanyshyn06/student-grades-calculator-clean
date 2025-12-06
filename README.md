@@ -1,83 +1,312 @@
-v0.25 — Performance Testing Using std::list and std::deque
+ Student Grades Calculator — Final Project Report
 
-In version v0.25, the project was extended to evaluate the performance of two additional Standard Library containers: std::list and std::deque.
-The main goal of this version was to compare their efficiency in processing large datasets of students and to analyze the performance of different operations such as reading, sorting, splitting, and writing data.
+This repository contains the full implementation and performance analysis of a student grade processing system using various data containers (vector, list, deque) and different splitting strategies.
+Each release introduces new features, optimizations, refactoring, and performance improvements.
 
-1. Implementation of List and Deque Versions
+ Release v0.1 – Initial OOP Implementation
+Implemented:
 
-Two new program variants were created:
+Class Person with:
 
-list_version.cpp — processes student records using std::list
+name, surname
 
-deque_version.cpp — processes the same logic using std::deque
+homework grades
 
-Both versions reuse the core functionality from v0.2:
+exam grade
 
-reading students from a file
+final average and median
 
-sorting them by surname
+Rule of Three:
 
-splitting into “passed” (final ≥ 5.0) and “failed” (final < 5.0)
+Constructor
 
-writing results into separate output files
+Copy constructor
 
-2. Benchmark Datasets
+Assignment operator
 
-The following datasets were used for testing:
+Destructor
 
-File Name	Size
-students_1000.txt	1 000 records
-students_10000.txt	10 000 records
-students_100000.txt	100 000 records
-students_1000000.txt	1 000 000 records
-students_10000000.txt	10 000 000 records
+Operator overloading:
 
-These datasets were generated earlier in version v0.2.
+>> input
 
-3. Operations Measured
+<< output
 
-A custom Timer class was used to measure the duration of the following tasks:
+Final grade calculation:
 
-Reading input data
+using average or median
 
-Sorting student records
+Reads:
 
-Splitting them into passed/failed groups
+manual input
 
-Writing results to output files
+unlimited amount of homework
 
-Total execution time
+Outputs:
 
-4. Benchmark Results
-List (std::list) Performance
-Records	Total Time
-1 000	~0.74 s
-10 000	~0.74 s
-100 000	~0.76 s
-1 000 000	~7.52 s
-10 000 000	~83.3 s
-Deque (std::deque) Performance
-Records	Total Time
-1 000	~0.02 s
-10 000	~0.15 s
-100 000	~1.54 s
-1 000 000	~19.32 s
-10 000 000	~209.9 s
-5. Analysis and Conclusions
-Key Observations
+formatted table sorted by surname
 
-std::deque is significantly faster on small datasets due to its efficient contiguous memory layout.
+This version uses std::vector for homework management only.
 
-std::list performs better on extremely large datasets, especially during sorting, because list::sort() does not require element relocation.
+ Release v0.2 – Refactoring + File Input + Exceptions + Large Data Generation
+Added:
 
-Sorting dominates total execution time in both containers, especially for files with millions of records.
+Code separated into modules:
 
-Final Conclusion
+person.cpp/.h
 
-Both containers have advantages:
+file_utils.cpp/.h
 
-deque is ideal for fast operations on small and medium datasets.
+main.cpp
 
-list is more efficient when sorting very large datasets (1M+ records).
+Exceptions:
 
-Version v0.25 completes the performance comparison stage of the project and provides insight into the trade-offs between different STL containers.
+file not found
+
+invalid format
+
+Added random generator for:
+
+10 000
+
+100 000
+
+1 000 000
+
+10 000 000 student records
+
+Implemented reading from large input files
+
+Implemented sorted formatted output
+
+Split students into:
+
+failed (< 5.0)
+
+passed (≥ 5.0)
+
+Measured performance for:
+
+reading
+
+sorting
+
+splitting
+
+writing
+
+ Release v0.25 – Comparison of Containers (Vector, List, Deque)
+Implemented:
+
+Full support for vector, list, deque
+
+Separate executables:
+
+vector_version
+
+list_version
+
+deque_version
+
+Performance measurement for operations:
+
+reading
+
+sorting
+
+splitting
+
+writing results
+
+Timer class for accurate measurement
+
+Large dataset benchmarks collected
+
+General Observations:
+
+vector is fastest for sorting and STL algorithms
+
+list is slow for sorting but fast for many erase operations
+
+deque performance is between vector and list
+
+ Release v1.0 – Final Optimized Version (Algorithms + Strategies)
+
+This version optimizes the v0.25 implementation using advanced STL algorithms and comparing two splitting strategies.
+
+ Splitting Strategies
+Strategy 1 — Two-Container Split
+
+Original container stays unchanged
+
+Create:
+
+failed
+
+passed
+
+Each student is copied into one of the two containers
+
+High memory usage
+
+Very fast execution for vector using std::partition_copy
+
+Strategy 2 — One-Container Split
+
+Create only failed
+
+Move failed students there
+
+Remove them from base container
+
+Base container now contains only passed students
+
+Uses:
+
+std::stable_partition
+
+std::remove_if
+
+Much lower memory usage
+
+Speed heavily dependent on container type
+
+ Algorithms Used in Optimization
+
+std::find
+
+std::find_if
+
+std::search
+
+std::copy
+
+std::remove
+
+std::remove_if
+
+std::remove_copy
+
+std::remove_copy_if
+
+std::transform
+
+std::partition
+
+std::stable_partition
+
+These algorithms significantly reduce manual loops and improve maintainability and speed.
+
+ Performance Summary
+Vector
+
+Fastest sorting
+
+Fastest splitting using std::partition_copy
+
+Best overall performance
+
+List
+
+Erase operations are fast
+
+Sorting is very slow
+
+Good for Strategy 2 when removing many elements
+
+Deque
+
+Middle performance
+
+Sorting slower than vector
+
+Still acceptable
+
+Winner:
+ Vector + Strategy 2 (optimized using erase-remove idiom)
+
+ Usage Instructions
+✔ Building with Makefile (Linux/MacOS/MinGW)
+
+Run:
+
+make
+
+
+This generates:
+
+vector_v1.exe
+
+list_v1.exe
+
+deque_v1.exe
+
+To clean:
+
+make clean
+
+✔ Building with CMake (Windows/Linux/MacOS)
+mkdir build
+cd build
+cmake ..
+cmake --build .
+
+
+Executables created:
+
+vector_v1
+list_v1
+deque_v1
+
+✔ Running Programs
+Vector version:
+./vector_v1
+
+List version:
+./list_v1
+
+Deque version:
+./deque_v1
+
+
+Each version prints:
+
+reading time
+
+sorting time
+
+splitting time (strategy 1 & 2)
+
+counts of failed and passed students
+
+✔ Repository Structure (Final Clean Version)
+person.h / person.cpp
+file_utils.h / file_utils.cpp
+split_strategies.h
+timer.h
+main.cpp
+list_version.cpp
+deque_version.cpp
+Makefile
+CMakeLists.txt
+README.md
+
+ Final Notes
+
+This project demonstrates deep understanding of:
+
+OOP
+
+Rule of three
+
+STL containers
+
+STL algorithms
+
+Large dataset processing
+
+Performance optimization
+
+Clean architecture & modular design
+
+Final release v1.0 is a complete, optimized, professional-grade implementation.

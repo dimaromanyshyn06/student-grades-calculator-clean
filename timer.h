@@ -5,23 +5,20 @@
 
 class Timer {
 private:
-    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point startTime;
+    std::chrono::high_resolution_clock::time_point endTime;
 
 public:
-    Timer() {
-        start = std::chrono::high_resolution_clock::now();
+    void start() {
+        startTime = std::chrono::high_resolution_clock::now();
     }
 
-    // Reset timer
-    void reset() {
-        start = std::chrono::high_resolution_clock::now();
+    void stop() {
+        endTime = std::chrono::high_resolution_clock::now();
     }
 
-    // Return elapsed time in seconds
     double elapsed() const {
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> diff = end - start;
-        return diff.count();
+        return std::chrono::duration<double>(endTime - startTime).count();
     }
 };
 

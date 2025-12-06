@@ -1,54 +1,62 @@
 #include <iostream>
 #include <list>
-#include <algorithm>
+#include <vector>
+
+#include "person.h"
 #include "file_utils.h"
 #include "timer.h"
+#include "split_strategies.h"
 
 int main() {
-    std::string filename = "students_10000000.txt";
+    std::string filename = "students_100000.txt";
 
+    // We read using vector (faster), then copy into list
+    std::vector<Person> vec = readStudentsFromFile(filename);
 
-    Timer t_total;
-    Timer t;
+    Timer tConvert;
+    tConvert.start();
+    std::list<Person> students(vec.begin(), vec.end());
+    tConvert.stop();
 
-    std::cout << "Reading list...\n";
-    t.reset();
-    std::list<Person> students = readStudentsList(filename);
-    std::cout << "Read time: " << t.elapsed() << " s\n";
+    std::cout << "Convert vector -> list time: " 
+              << tConvert.elapsed() << " s\n";
 
-    // SORT
-    std::cout << "Sorting...\n";
-    t.reset();
-    students.sort([](const Person& a, const Person& b) {
-        return a.getSurname() < b.getSurname();
-    });
-    std::cout << "Sort time: " << t.elapsed() << " s\n";
+    // ---------------------------
+    // STRATEGY 1 — Two containers
+    // ---------------------------
+    {
+        std::list<Person> failed, passed;
 
-    // SPLIT
-    std::cout << "Splitting...\n";
-    t.reset();
-    std::list<Person> failed, passed;
+        Timer t1;
+        t1.start();
+        split_strategy1(students, failed, passed);
+        t1.stop();
 
-    for (const auto& s : students) {
-        if (s.getFinalAverage() < 5.0)
-            failed.push_back(s);
-        else
-            passed.push_back(s);
+        std::cout << "List Strategy 1 time: " 
+                  << t1.elapsed() << " s\n";
+
+        std::cout << "  Failed: " << failed.size()
+                  << " | Passed: " << passed.size() << "\n\n";
     }
-    std::cout << "Split time: " << t.elapsed() << " s\n";
 
-    // WRITE TO FILES
-    std::cout << "Writing failed.txt...\n";
-    t.reset();
-    writeStudentsToFile("failed_list.txt", failed);
-    std::cout << "Write time (failed): " << t.elapsed() << " s\n";
+    // ---------------------------
+    // STRATEGY 2 — One container
+    // ---------------------------
+    {
+        std::list<Person> base(students.begin(), students.end());
+        std::list<Person> failed;
 
-    std::cout << "Writing passed_list.txt...\n";
-    t.reset();
-    writeStudentsToFile("passed_list.txt", passed);
-    std::cout << "Write time (passed): " << t.elapsed() << " s\n";
+        Timer t2;
+        t2.start();
+        split_strategy2(base, failed);
+        t2.stop();
 
-    std::cout << "\nTOTAL TIME: " << t_total.elapsed() << " s\n";
+        std::cout << "List Strategy 2 time: " 
+                  << t2.elapsed() << " s\n";
+
+        std::cout << "  Failed: " << failed.size()
+                  << " | Passed: " << base.size() << "\n\n";
+    }
 
     return 0;
 }
